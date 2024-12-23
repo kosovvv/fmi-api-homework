@@ -1,15 +1,22 @@
-﻿namespace CarsAPI.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CarsAPI.Dtos
 {
-    public class ResponseGarageDTO
+    public class ResponseGarageDTO(long id, string name, string location, string city, int capacity)
     {
-        public required long Id { get; set; }
+        [Required]
+        public long Id { get; set; } = id;
 
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; } = name;
 
-        public required string Location { get; set; }
+        [Required]
+        public string Location { get; set; } = location;
 
-        public required string City { get; set; }
+        [Required]
+        public string City { get; set; } = city;
 
-        public required int Capacity { get; set; }
+        [Required]
+        public int Capacity { get; set; } = capacity;
     }
 }

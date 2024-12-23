@@ -1,4 +1,7 @@
 
+using CarsAPI.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace CarsAPI
 {
     public class Program
@@ -8,8 +11,14 @@ namespace CarsAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            string connectionString = "Server=Emil\\SQLEXPRESS;Database=CarsAPI;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
             builder.Services.AddControllers();
+            builder.Services.AddDbContext<CarsContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

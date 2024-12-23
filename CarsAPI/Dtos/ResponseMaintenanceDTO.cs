@@ -2,38 +2,27 @@
 
 namespace CarsAPI.Dtos
 {
-    public class ResponseMaintenanceDTO
+    public class ResponseMaintenanceDTO(long id,
+        long carId,
+        string? carName,
+        string? serviceType,
+        string? scheduledDate,
+        long garageId,
+        string? garageName)
     {
-        public ResponseMaintenanceDTO(long id,
-            long carId,
-            string? carName, 
-            string? serviceType, 
-            string? scheduledDate, 
-            long garageId, 
-            string? garageName)
-        {
-            Id = id;
-            CarId = carId;
-            CarName = carName;
-            ServiceType = serviceType;
-            ScheduledDate = scheduledDate;
-            GarageId = garageId;
-            GarageName = garageName;
-        }
+        public long Id { get; set; } = id;
 
-        public long Id { get; set; }
+        public long CarId { get; set; } = carId;
 
-        public long CarId { get; set; }
+        public string? CarName { get; set; } = carName;
 
-        public string? CarName { get; set; }
-
-        public string? ServiceType { get; set; }
+        public string? ServiceType { get; set; } = serviceType;
 
         [DataType(DataType.Date)]
-        public string? ScheduledDate { get; set; }
+        public string? ScheduledDate { get; set; } = scheduledDate;
 
-        public long GarageId { get; set; }
+        public long GarageId { get; set; } = garageId;
 
-        public string? GarageName { get; set; }
+        public string? GarageName { get; set; } = garageName;
     }
 }
