@@ -11,7 +11,7 @@ namespace CarsAPI.Models
         }
 
         [Key]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public required string Make { get; set; }
 
@@ -21,7 +21,7 @@ namespace CarsAPI.Models
 
         public required string LicensePlate { get; set; }
 
-        [InverseProperty(nameof(Garages))]
+        [InverseProperty(nameof(Garage.Cars))]
         public virtual ICollection<Garage> Garages { get; set; }
     }
 }
