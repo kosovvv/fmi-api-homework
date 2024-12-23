@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI.Services
 {
-    public class MaintenanceService(CarsContext dbContext)
+    public class MaintenanceService(CarsContext dbContext) : IMaintenanceService
     {
         public async Task<ResponseMaintenanceDTO?> GetMaintenanceById(long id)
         {

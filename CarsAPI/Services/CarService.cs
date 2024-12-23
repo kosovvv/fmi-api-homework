@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI.Services
 {
-    public class CarService(CarsContext dbContext)
+    public class CarService(CarsContext dbContext) : ICarService
     {
         public async Task<ResponseCarDTO> GetCarById(long id)
         {
@@ -91,19 +91,18 @@ namespace CarsAPI.Services
             return new ResponseCarDTO(createdEntity.Id, createdEntity.Make, createdEntity.Model, createdEntity.ProductionYear,createdEntity.LicensePlate, garagesDtos);
         }
 
-        public async Task<IEnumerable<ResponseCarDTO>> SearchCarsAsync(string carMake, int garageId, int fromYear, int toYear)
+        public async Task<IEnumerable<ResponseCarDTO>> SearchCarsAsync(string? carMake, long? garageId, int? fromYear, int? toYear)
         {
             IEnumerable<ResponseCarDTO> cars = await dbContext.Cars
                 .Include(x => x.Garages)
-                .Where(x => x.Garages.Any(x => x.Id == garageId) &&
-                            x.Make == carMake &&
-                            x.ProductionYear >= fromYear &&
-                            x.ProductionYear <= toYear)
+                .Where(x => (string.IsNullOrWhiteSpace(carMake) || x.Make == carMake) &&
+                    (!garageId.HasValue || x.Garages.Any(g => g.Id == garageId.Value)) &&
+                    (!fromYear.HasValue || x.ProductionYear >= fromYear.Value) &&
+                    (!toYear.HasValue || x.ProductionYear <= toYear.Value))
                 .Select(x => new ResponseCarDTO(x.Id, x.Make, x.Model, x.ProductionYear, x.LicensePlate, 
                     x.Garages.Select(y => new ResponseGarageDTO(y.Id, y.Name, y.Location, y.City, y.Capacity))))
-                .ToListAsync();
+               .ToListAsync();
      
-
             return cars;
         }
 

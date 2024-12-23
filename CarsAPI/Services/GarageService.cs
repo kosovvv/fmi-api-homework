@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI.Services
 {
-    public class GarageService(CarsContext dbContext)
+    public class GarageService(CarsContext dbContext) : IGarageService
     {
         public async Task<ResponseGarageDTO> GetGarageById(long id)
         {
@@ -59,12 +59,12 @@ namespace CarsAPI.Services
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ResponseGarageDTO>> GetGaragesByCity(string city)
+        public async Task<IEnumerable<ResponseGarageDTO>> GetGaragesByCity(string? city)
         {
             IEnumerable<Garage> result = await this.dbContext
                .Garages
                .Include(x => x.Cars)
-               .Where(x => x.City == city)
+               .Where(x => string.IsNullOrWhiteSpace(city) || x.City == city)
                .ToListAsync();
 
             if (result == null)
@@ -96,10 +96,10 @@ namespace CarsAPI.Services
                 createdEntity.Capacity);
         }
 
-        public async Task<IEnumerable<GarageDailyAvailabilityReportDTO>> GetDailyAvailabilityReport(Garage garage, DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<GarageDailyAvailabilityReportDTO>> GetDailyAvailabilityReport(long garageId, DateTime startDate, DateTime endDate)
         {
             IEnumerable<Maintenance> maintenanceRequests = await dbContext.Maintenances
-                .Where(request => request.GarageId == garage.Id && 
+                .Where(request => request.GarageId == garageId && 
                        request.ScheduledDate >= startDate && 
                        request.ScheduledDate <= endDate)
                 .ToListAsync();
@@ -107,6 +107,8 @@ namespace CarsAPI.Services
             IEnumerable<DayChunk> daysChunk = DateUtils.ChunkToDays(startDate, endDate);
 
             List<GarageDailyAvailabilityReportDTO> results = [];
+
+            ResponseGarageDTO garage = await this.GetGarageById(garageId);
 
             foreach (DayChunk chunk in daysChunk)
             {

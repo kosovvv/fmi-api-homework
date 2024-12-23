@@ -1,5 +1,6 @@
 
 using CarsAPI.Models;
+using CarsAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI
@@ -22,6 +23,16 @@ namespace CarsAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+            builder.Services.AddScoped<IGarageService, GarageService>();
+            builder.Services.AddScoped<ICarService, CarService>();
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                });
+            });
 
             var app = builder.Build();
 
@@ -38,7 +49,7 @@ namespace CarsAPI
 
 
             app.MapControllers();
-
+            app.UseCors("CorsPolicy");
             app.Run();
         }
     }
