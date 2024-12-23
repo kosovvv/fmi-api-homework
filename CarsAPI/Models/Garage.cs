@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CarsAPI.Models
 {
@@ -21,8 +20,10 @@ namespace CarsAPI.Models
         
         public int Capacity { get; set; }
 
-        [InverseProperty(nameof(Car.Garages))]
+        //[InverseProperty(nameof(Car.Garages))]
         public virtual ICollection<Car> Cars { get; set; }
+
+        public virtual ICollection<Maintenance> Maintenances { get; set; }
 
     }
 }

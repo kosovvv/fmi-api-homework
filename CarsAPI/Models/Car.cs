@@ -21,7 +21,7 @@ namespace CarsAPI.Models
 
         public required string LicensePlate { get; set; }
 
-        [InverseProperty(nameof(Garage.Cars))]
+        //[InverseProperty(nameof(Garage.Cars))]
         public virtual ICollection<Garage> Garages { get; set; }
     }
 }

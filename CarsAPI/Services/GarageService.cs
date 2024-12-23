@@ -59,6 +59,77 @@ namespace CarsAPI.Services
             await dbContext.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<ResponseGarageDTO>> GetGaragesByCity(string city)
+        {
+            IEnumerable<Garage> result = await this.dbContext
+               .Garages
+               .Include(x => x.Cars)
+               .Where(x => x.City == city)
+               .ToListAsync();
+
+            if (result == null)
+            {
+                //to do
+                return null;
+            }
+
+            return result.Select(x => new ResponseGarageDTO(x.Id, x.Name, x.Location, x.City, x.Capacity));
+        }
+
+        public async Task<ResponseGarageDTO?> CreateGarage(CreateGarageDTO dto)
+        {
+            Garage garageToCreate = new()
+            {
+                Name = dto.Name,
+                City = dto.City,
+                Location = dto.Location,
+                Capacity = dto.Capacity // can be set to 0
+            };
+
+            Garage? createdEntity = (await dbContext.Garages.AddAsync(garageToCreate)).Entity;
+            await dbContext.SaveChangesAsync();
+
+            return new ResponseGarageDTO(createdEntity.Id,
+                createdEntity.Name,
+                createdEntity.Location,
+                createdEntity.City, 
+                createdEntity.Capacity);
+        }
+
+        public async Task<IEnumerable<GarageDailyAvailabilityReportDTO>> GetDailyAvailabilityReport(Garage garage, DateTime startDate, DateTime endDate)
+        {
+            IEnumerable<Maintenance> maintenanceRequests = await dbContext.Maintenances
+                .Where(request => request.GarageId == garage.Id && 
+                       request.ScheduledDate >= startDate && 
+                       request.ScheduledDate <= endDate)
+                .ToListAsync();
+
+            IEnumerable<DayChunk> daysChunk = DateUtils.ChunkToDays(startDate, endDate);
+
+            List<GarageDailyAvailabilityReportDTO> results = [];
+
+            foreach (DayChunk chunk in daysChunk)
+            {
+                long chunkStartDateTimestamp = chunk.Start.Ticks;
+                long chunkEndDateTimestamp = chunk.End.Ticks;
+
+                IEnumerable<Maintenance> requests = maintenanceRequests.Where(request =>
+                {
+                    var requestDateTimestamp = request.ScheduledDate.Ticks;
+                    return requestDateTimestamp >= chunkStartDateTimestamp && requestDateTimestamp <= chunkEndDateTimestamp;
+                });
+
+                results.Add(new GarageDailyAvailabilityReportDTO
+                {
+                    Date = chunk.Start.ToString("yyyy-MM-dd"),
+                    Requests = requests.Count(),
+                    AvaliableCapacity = garage.Capacity - requests.Count()
+                });
+            }
+
+            return results;
+        }
+
         private readonly CarsContext dbContext = dbContext;
     }
 }

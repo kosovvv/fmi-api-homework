@@ -2,9 +2,19 @@
 {
     public class ResponseCarDTO
     {
-        public ResponseCarDTO()
+        public ResponseCarDTO(long id, 
+            string? make, 
+            string? model, 
+            int productionYear, 
+            string? licensePlate, 
+            IEnumerable<ResponseGarageDTO> garages)
         {
-            this.Garages = [];
+            Id = id;
+            Make = make;
+            Model = model;
+            ProductionYear = productionYear;
+            LicensePlate = licensePlate;
+            Garages = garages;
         }
 
         public long Id { get; set; }
@@ -17,6 +27,6 @@
 
         public string? LicensePlate { get; set; }
 
-        public ICollection<ResponseGarageDTO> Garages { get; set; }
+        public IEnumerable<ResponseGarageDTO> Garages { get; set; }
     }
 }

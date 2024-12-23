@@ -72,7 +72,7 @@ namespace CarsAPI.Services
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<ResponseMaintenanceDTO?> CreateMaintenanceById(CreateMaintenanceDTO dto)
+        public async Task<ResponseMaintenanceDTO?> CreateMaintenance(CreateMaintenanceDTO dto)
         {
             Maintenance maintenanceToCreate = new()
             {
@@ -94,9 +94,14 @@ namespace CarsAPI.Services
                 createdEntity.Garage.Name);
         }
 
-        public async Task<IEnumerable<ResponseMaintenanceDTO>> GetMaintenanceByQueryParams(QueryParams queryParams)
+        public async Task<IEnumerable<ResponseMaintenanceDTO>> GetMaintenanceByQueryParams(string? startDate, string? endDate, long? carId, long? garageId)
         {
-            IEnumerable<Maintenance> result = await ApplyFilters(this.dbContext.Maintenances, queryParams).ToListAsync();
+            IEnumerable<Maintenance> result = await this.dbContext.Maintenances
+                .Where(x => string.IsNullOrEmpty(startDate) || x.ScheduledDate >= DateTime.Parse(startDate))
+                .Where(x => string.IsNullOrEmpty(endDate) || x.ScheduledDate <= DateTime.Parse(endDate))
+                .Where(x => !carId.HasValue || x.CarId == carId)
+                .Where(x => !garageId.HasValue || x.GarageId == garageId)
+                .ToListAsync();
 
             if (result == null)
             {
@@ -113,34 +118,35 @@ namespace CarsAPI.Services
                 x.Garage.Name));
         }
 
-        public async Task<MonthlyRequestsReportDTO> GetMonthlyReport(QueryParams queryParams)
+        public async Task<List<MonthlyRequestsReportDTO>> GetMonthlyRequestsReportAsync(long garageId, DateTime startDate, DateTime endDate)
         {
-            IEnumerable<Maintenance> result = await ApplyFilters(this.dbContext.Maintenances, queryParams).ToListAsync();
+            IEnumerable<Maintenance> maintenanceRequests = await dbContext.Maintenances
+                .Where(request => request.GarageId == garageId &&
+                       request.ScheduledDate >= startDate &&
+                       request.ScheduledDate <= endDate)
+                .ToListAsync();
 
-            if (result == null)
+            IEnumerable<MonthChunk> monthChunks = DateUtils.ChunkToMonths(startDate, endDate);
+
+            List<MonthlyRequestsReportDTO> results = [];
+
+            foreach (MonthChunk chunk in monthChunks)
             {
-                return new MonthlyRequestsReportDTO()
+                long chunkStartDateTimestamp = chunk.Start.Ticks;
+                long chunkEndDateTimestamp = chunk.End.Ticks;
+
+                IEnumerable<Maintenance> requests = maintenanceRequests
+                    .Where(request => request.ScheduledDate.Ticks >= chunkStartDateTimestamp && request.ScheduledDate.Ticks <= chunkEndDateTimestamp)
+                    .ToList();
+
+                results.Add(new MonthlyRequestsReportDTO
                 {
-                    Requests = 0,
-                    YearMonth = queryParams.StartDate,
-                };
+                    YearMonth = $"{chunk.Year}-{chunk.Month}",
+                    Requests = requests.Count()
+                });
             }
 
-            return new MonthlyRequestsReportDTO()
-            {
-                Requests = result.Count(),
-                YearMonth = queryParams.StartDate,
-            };
-        }
-
-
-        private static IQueryable<Maintenance> ApplyFilters(IQueryable<Maintenance> query, QueryParams queryParams)
-        {
-            return query
-                .Where(x => string.IsNullOrEmpty(queryParams.StartDate) || x.ScheduledDate >= DateTime.Parse(queryParams.StartDate))
-                .Where(x => string.IsNullOrEmpty(queryParams.EndDate) || x.ScheduledDate <= DateTime.Parse(queryParams.EndDate))
-                .Where(x => !queryParams.CarId.HasValue || x.CarId == queryParams.CarId)
-                .Where(x => !queryParams.GarageId.HasValue || x.GarageId == queryParams.GarageId);
+            return results;
         }
 
         private readonly CarsContext dbContext = dbContext;
