@@ -1,6 +1,5 @@
 ﻿using Cars.Data.Models.Models;
 using Cars.Data.Services.Exceptions;
-using Cars.Data.Services.Helpers;
 using Cars.Data.Services.Interfaces;
 using Cars.Web.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -111,7 +110,7 @@ namespace Cars.Data.Services.Implementations
                        request.ScheduledDate <= endDate)
                 .ToListAsync();
 
-            IEnumerable<MonthChunk> monthChunks = DateUtils.ChunkToMonths(startDate, endDate);
+            IEnumerable<MonthChunk> monthChunks = ChunkToMonths(startDate, endDate);
 
             List<MonthlyRequestsReportDTO> results = [];
 
@@ -134,6 +133,33 @@ namespace Cars.Data.Services.Implementations
             return results;
         }
 
+        private static IEnumerable<MonthChunk> ChunkToMonths(DateTime startDate, DateTime endDate)
+        {
+            DateTime current = new(startDate.Year, startDate.Month, 1);
+
+            while (current <= endDate)
+            {
+                yield return new MonthChunk
+                {
+                    Start = new DateTime(current.Year, current.Month, 1),
+                    End = new DateTime(current.Year, current.Month, 1).AddMonths(1).AddDays(-1),
+                    Month = current.ToString("MMMM").ToUpper(),
+                    Year = current.Year,
+                    MonthValue = current.Month - 1,
+                };
+
+                current = current.AddMonths(1);
+            }
+        }
+
         private readonly CarsContext dbContext = dbContext;
+        private class MonthChunk
+        {
+            public DateTime Start { get; set; }
+            public DateTime End { get; set; }
+            public string? Month { get; set; }
+            public int Year { get; set; }
+            public int MonthValue { get; set; }
+        }
     }
 }

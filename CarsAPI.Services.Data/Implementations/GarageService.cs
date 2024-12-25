@@ -1,6 +1,5 @@
 ﻿using Cars.Data.Models.Models;
 using Cars.Data.Services.Exceptions;
-using Cars.Data.Services.Helpers;
 using Cars.Data.Services.Interfaces;
 using Cars.Web.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -67,10 +66,10 @@ namespace Cars.Data.Services.Implementations
                 Name = dto.Name,
                 City = dto.City,
                 Location = dto.Location,
-                Capacity = dto.Capacity // can be set to 0
+                Capacity = dto.Capacity
             };
 
-            Garage? createdEntity = (await dbContext.Garages.AddAsync(garageToCreate)).Entity;
+            Garage createdEntity = (await dbContext.Garages.AddAsync(garageToCreate)).Entity;
             await dbContext.SaveChangesAsync();
 
             return new ResponseGarageDTO(createdEntity.Id,
@@ -88,7 +87,7 @@ namespace Cars.Data.Services.Implementations
                        request.ScheduledDate <= endDate)
                 .ToListAsync();
 
-            IEnumerable<DayChunk> daysChunk = DateUtils.ChunkToDays(startDate, endDate);
+            IEnumerable<DayChunk> daysChunk = ChunkToDays(startDate, endDate);
 
             List<GarageDailyAvailabilityReportDTO> results = [];
 
@@ -101,7 +100,7 @@ namespace Cars.Data.Services.Implementations
 
                 IEnumerable<Maintenance> requests = maintenanceRequests.Where(request =>
                 {
-                    var requestDateTimestamp = request.ScheduledDate.Ticks;
+                    long requestDateTimestamp = request.ScheduledDate.Ticks;
                     return requestDateTimestamp >= chunkStartDateTimestamp && requestDateTimestamp <= chunkEndDateTimestamp;
                 });
 
@@ -109,13 +108,34 @@ namespace Cars.Data.Services.Implementations
                 {
                     Date = chunk.Start.ToString("yyyy-MM-dd"),
                     Requests = requests.Count(),
-                    AvaliableCapacity = garage.Capacity - requests.Count()
+                    AvailableCapacity = garage.Capacity - requests.Count()
                 });
             }
 
             return results;
         }
 
+        private static IEnumerable<DayChunk> ChunkToDays(DateTime? startDate, DateTime? endDate)
+        {
+            DateTime current = startDate ?? DateTime.Now;
+
+            while (current <= endDate)
+            {
+                yield return new DayChunk
+                {
+                    Start = current.Date,
+                    End = current.Date.AddDays(1).AddMilliseconds(-1)
+                };
+
+                current = current.AddDays(1);
+            }
+        }
+
         private readonly CarsContext dbContext = dbContext;
+        private class DayChunk
+        {
+            public DateTime Start { get; set; }
+            public DateTime End { get; set; }
+        }
     }
 }

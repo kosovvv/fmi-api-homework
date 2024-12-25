@@ -12,7 +12,7 @@ namespace Cars.Web.ViewModels
         {
             Date = date;
             Requests = requests;
-            AvaliableCapacity = avaliableCapacity;
+            AvailableCapacity = avaliableCapacity;
         }
 
         [DataType(DataType.Date)]
@@ -20,6 +20,6 @@ namespace Cars.Web.ViewModels
 
         public int Requests { get; set; }
 
-        public int AvaliableCapacity { get; set; }
+        public int AvailableCapacity { get; set; }
     }
 }
