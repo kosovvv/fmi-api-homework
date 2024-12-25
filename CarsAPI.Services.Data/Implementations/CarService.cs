@@ -87,7 +87,7 @@ namespace Cars.Data.Services.Implementations
         {
             IEnumerable<ResponseCarDTO> cars = await dbContext.Cars
                 .Include(x => x.Garages)
-                .Where(x => (string.IsNullOrWhiteSpace(carMake) || x.Make == carMake) &&
+                .Where(x => (string.IsNullOrWhiteSpace(carMake) || x.Make.Contains(carMake)) &&
                     (!garageId.HasValue || x.Garages.Any(g => g.Id == garageId.Value)) &&
                     (!fromYear.HasValue || x.ProductionYear >= fromYear.Value) &&
                     (!toYear.HasValue || x.ProductionYear <= toYear.Value))
