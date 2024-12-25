@@ -72,10 +72,10 @@ namespace CarsAPI.Controllers
         [HttpGet("monthlyRequestsReport")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseMaintenanceDTO>> GetReport([FromQuery] long garageId,
-            [FromQuery] DateTime startDate,
-            [FromQuery] DateTime endDate)
+            [FromQuery] DateTime? startMonth,
+            [FromQuery] DateTime? endMonth)
         {
-            IEnumerable<MonthlyRequestsReportDTO> result = await maintenanceService.GetReport(garageId, startDate, endDate);
+            IEnumerable<MonthlyRequestsReportDTO> result = await maintenanceService.GetReport(garageId, startMonth, endMonth);
 
             return Ok(result);
         }

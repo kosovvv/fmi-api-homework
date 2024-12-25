@@ -102,7 +102,7 @@ namespace Cars.Data.Services.Implementations
                 x.Garage?.Name));
         }
 
-        public async Task<List<MonthlyRequestsReportDTO>> GetReport(long garageId, DateTime startDate, DateTime endDate)
+        public async Task<List<MonthlyRequestsReportDTO>> GetReport(long garageId, DateTime? startDate, DateTime? endDate)
         {
             IEnumerable<Maintenance> maintenanceRequests = await dbContext.Maintenances
                 .Where(request => request.GarageId == garageId &&
@@ -133,9 +133,9 @@ namespace Cars.Data.Services.Implementations
             return results;
         }
 
-        private static IEnumerable<MonthChunk> ChunkToMonths(DateTime startDate, DateTime endDate)
+        private static IEnumerable<MonthChunk> ChunkToMonths(DateTime? startDate, DateTime? endDate)
         {
-            DateTime current = new(startDate.Year, startDate.Month, 1);
+            DateTime current = startDate != null ? new(startDate.Value.Year, startDate.Value.Month, 1) : DateTime.Now;
 
             while (current <= endDate)
             {
@@ -146,6 +146,7 @@ namespace Cars.Data.Services.Implementations
                     Month = current.ToString("MMMM").ToUpper(),
                     Year = current.Year,
                     MonthValue = current.Month - 1,
+                    LeapYear = DateTime.IsLeapYear(current.Year)
                 };
 
                 current = current.AddMonths(1);
@@ -160,6 +161,8 @@ namespace Cars.Data.Services.Implementations
             public string? Month { get; set; }
             public int Year { get; set; }
             public int MonthValue { get; set; }
+
+            public bool LeapYear { get; set; }
         }
     }
 }

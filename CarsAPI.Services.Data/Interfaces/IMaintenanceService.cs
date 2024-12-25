@@ -9,6 +9,6 @@ namespace Cars.Data.Services.Interfaces
         Task Delete(long id);
         Task<ResponseMaintenanceDTO> Create(CreateMaintenanceDTO dto);
         Task<IEnumerable<ResponseMaintenanceDTO>> Search(string? startDate, string? endDate, long? carId, long? garageId);
-        Task<List<MonthlyRequestsReportDTO>> GetReport(long garageId, DateTime startDate, DateTime endDate);
+        Task<List<MonthlyRequestsReportDTO>> GetReport(long garageId, DateTime? startDate, DateTime? endDate);
     }
 }
