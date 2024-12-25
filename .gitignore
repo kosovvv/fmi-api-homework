@@ -11,3 +11,6 @@
 /Cars.Web.ViewModels/bin/Debug/net8.0
 /Cars.Web.ViewModels/obj
 /CarsAPI.Services.Data/obj
+/Cars.Data/bin/Debug/net8.0
+/Cars.Data.Models/bin/Debug/net8.0
+/CarsAPI.Services.Data/bin/Debug/net8.0
