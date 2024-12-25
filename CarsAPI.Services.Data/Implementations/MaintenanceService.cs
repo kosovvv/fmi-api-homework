@@ -10,7 +10,7 @@ namespace Cars.Data.Services.Implementations
     {
         public async Task<ResponseMaintenanceDTO> Get(long id)
         {
-            Maintenance? result = await dbContext
+            Maintenance result = await dbContext
                 .Maintenances
                 .Include(x => x.Car)
                 .Include(x => x.Garage)
@@ -18,7 +18,7 @@ namespace Cars.Data.Services.Implementations
                 ?? throw new NotFoundException($"{nameof(Maintenance)} with {id} is not found");
 
             return new ResponseMaintenanceDTO(result.Id,
-                result.Car?.Id,
+                result.Car.Id,
                 result.Car?.Make,
                 result.ServiceType,
                 result.ScheduledDate.ToString(),

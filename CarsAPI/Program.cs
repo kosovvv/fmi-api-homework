@@ -1,6 +1,7 @@
 using Cars.Data;
 using Cars.Data.Services.Implementations;
 using Cars.Data.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI
@@ -26,6 +27,18 @@ namespace CarsAPI
             builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
             builder.Services.AddScoped<IGarageService, GarageService>();
             builder.Services.AddScoped<ICarService, CarService>();
+
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    IEnumerable<string> errors = actionContext.ModelState.Where(e => e.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage);
+
+                    return new BadRequestObjectResult(errors);
+                };
+            });
+
             builder.Services.AddCors(opt =>
             {
                 opt.AddPolicy("CorsPolicy", policy =>
