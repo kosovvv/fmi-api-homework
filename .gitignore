@@ -5,3 +5,9 @@
 /CarsAPI/.vs/CarsAPI
 /CarsAPI/obj
 /CarsAPI/bin/Debug/net8.0
+/Cars.Data/obj
+/Cars.Data.Models/obj
+/Cars.Web.Infrastructure/obj
+/Cars.Web.ViewModels/bin/Debug/net8.0
+/Cars.Web.ViewModels/obj
+/CarsAPI.Services.Data/obj

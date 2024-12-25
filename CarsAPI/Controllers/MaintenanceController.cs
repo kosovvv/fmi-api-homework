@@ -1,5 +1,5 @@
-﻿using CarsAPI.Dtos;
-using CarsAPI.Services;
+﻿using Cars.Data.Services.Interfaces;
+using Cars.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarsAPI.Controllers
@@ -7,9 +7,12 @@ namespace CarsAPI.Controllers
     public class MaintenanceController(IMaintenanceService maintenanceService) : BaseApiController
     {
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResponseMaintenanceDTO>> GetById(long id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ResponseMaintenanceDTO>> Get(long id)
         {
-            ResponseMaintenanceDTO? maintenanceDTO = await maintenanceService.GetMaintenanceById(id);
+            ResponseMaintenanceDTO? maintenanceDTO = await maintenanceService.Get(id);
 
             if (maintenanceDTO == null)
             {
@@ -20,56 +23,43 @@ namespace CarsAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseMaintenanceDTO>> Update(long id, UpdateMaintenanceDTO dto)
         {
-            ResponseMaintenanceDTO? maintenanceDTO = await maintenanceService.GetMaintenanceById(id);
-
-            if (maintenanceDTO == null)
-            {
-                return NotFound();
-            }
-
-            ResponseMaintenanceDTO? result = await maintenanceService.UpdateMaintenanceById(id, dto);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
+            ResponseMaintenanceDTO? result = await maintenanceService.Update(id, dto);
 
             return Ok(result);
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(long id)
         {
-            ResponseMaintenanceDTO? maintenanceDTO = await maintenanceService.GetMaintenanceById(id);
-
-            if (maintenanceDTO == null)
-            {
-                return NotFound();
-            }
-
-            await maintenanceService.DeleteMaintenanceById(id);
+            await maintenanceService.Delete(id);
 
             return Ok();
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResponseMaintenanceDTO>> GetMaintenance([FromQuery] long? carId, 
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ResponseMaintenanceDTO>> Get([FromQuery] long? carId, 
             [FromQuery] long? garageId, 
             [FromQuery] DateTime? startDate, 
             [FromQuery] DateTime? endDate)
         {
             IEnumerable<ResponseMaintenanceDTO> result = await maintenanceService.
-                GetMaintenanceByQueryParams(startDate.ToString(), endDate.ToString(), carId, garageId);
+                Search(startDate.ToString(), endDate.ToString(), carId, garageId);
 
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ResponseMaintenanceDTO>> CreateMaintenance(CreateMaintenanceDTO dto)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ResponseMaintenanceDTO>> Create(CreateMaintenanceDTO dto)
         {
-            ResponseMaintenanceDTO? created = await maintenanceService.CreateMaintenance(dto);
+            ResponseMaintenanceDTO? created = await maintenanceService.Create(dto);
 
             if (created == null)
             {
@@ -80,12 +70,12 @@ namespace CarsAPI.Controllers
         }
 
         [HttpGet("monthlyRequestsReport")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseMaintenanceDTO>> GetReport([FromQuery] long garageId,
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate)
         {
-            IEnumerable<MonthlyRequestsReportDTO> result = await maintenanceService.
-                GetMonthlyRequestsReportAsync(garageId, startDate, endDate);
+            IEnumerable<MonthlyRequestsReportDTO> result = await maintenanceService.GetReport(garageId, startDate, endDate);
 
             return Ok(result);
         }

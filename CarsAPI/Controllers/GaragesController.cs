@@ -1,5 +1,5 @@
-﻿using CarsAPI.Dtos;
-using CarsAPI.Services;
+﻿using Cars.Data.Services.Interfaces;
+using Cars.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarsAPI.Controllers
@@ -7,9 +7,12 @@ namespace CarsAPI.Controllers
     public class GaragesController(IGarageService garageService) : BaseApiController
     {
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResponseGarageDTO>> GetById(long id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ResponseGarageDTO>> Get(long id)
         {
-            ResponseGarageDTO? garageDTO = await garageService.GetGarageById(id);
+            ResponseGarageDTO? garageDTO = await garageService.Get(id);
 
             if (garageDTO == null)
             {
@@ -20,16 +23,12 @@ namespace CarsAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseGarageDTO>> Update(long id, UpdateGarageDTO dto)
         {
-            ResponseGarageDTO? garageDTO = await garageService.GetGarageById(id);
-
-            if (garageDTO == null)
-            {
-                return NotFound();
-            }
-
-            ResponseGarageDTO? result = await garageService.UpdateGarageById(id, dto);
+            ResponseGarageDTO? result = await garageService.Update(id, dto);
 
             if (result == null)
             {
@@ -40,48 +39,43 @@ namespace CarsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(long id)
         {
-            ResponseGarageDTO? garageDto = await garageService.GetGarageById(id);
-
-            if (garageDto == null)
-            {
-                return NotFound();
-            }
-
-            await garageService.DeleteGarageById(id);
+            await garageService.Delete(id);
 
             return Ok();
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResponseGarageDTO>> GetByCity([FromQuery] string? city)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ResponseGarageDTO>> Search([FromQuery] string? city)
         {
-            IEnumerable<ResponseGarageDTO> result = await garageService.GetGaragesByCity(city);
+            IEnumerable<ResponseGarageDTO> result = await garageService.Search(city);
 
             return Ok(result);
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseGarageDTO>> Create(CreateGarageDTO dto)
         {
-            ResponseGarageDTO? created = await garageService.CreateGarage(dto);
-
-            if (created == null)
-            {
-                return NotFound();
-            }
+            ResponseGarageDTO? created = await garageService.Create(dto);
 
             return Ok(created);
         }
 
         [HttpGet("dailyAvailabilityReport")]
-        public async Task<ActionResult<GarageDailyAvailabilityReportDTO>> Get([FromQuery] long? garageId,
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<GarageDailyAvailabilityReportDTO>> Get(
+        [FromQuery] long garageId,
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate)
         {
-            IEnumerable<GarageDailyAvailabilityReportDTO> result =
-                await garageService.GetDailyAvailabilityReport(garageId.Value, startDate.Value, endDate.Value);
+            IEnumerable<GarageDailyAvailabilityReportDTO> result = 
+                await garageService.GetReport(garageId, startDate, endDate);
 
             return Ok(result);
         }

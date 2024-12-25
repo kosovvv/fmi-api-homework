@@ -1,5 +1,5 @@
-﻿using CarsAPI.Dtos;
-using CarsAPI.Services;
+﻿using Cars.Data.Services.Interfaces;
+using Cars.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarsAPI.Controllers
@@ -7,9 +7,12 @@ namespace CarsAPI.Controllers
     public class CarsController(ICarService carService) : BaseApiController
     {
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResponseCarDTO>> GetById(long id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ResponseCarDTO>> Get(long id)
         {
-            ResponseCarDTO? carDTO = await carService.GetCarById(id);
+            ResponseCarDTO? carDTO = await carService.Get(id);
 
             if (carDTO == null)
             {
@@ -20,60 +23,46 @@ namespace CarsAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseCarDTO>> Update(long id, UpdateCarDTO dto)
         {
-            ResponseCarDTO? carDTO = await carService.GetCarById(id);
-
-            if (carDTO == null)
-            {
-                return NotFound();
-            }
-
-            ResponseCarDTO? result = await carService.UpdateCarById(id, dto);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
+            ResponseCarDTO result = await carService.Update(id, dto);
 
             return Ok(result);
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(long id)
         {
-            ResponseCarDTO? carDTO = await carService.GetCarById(id);
-
-            if (carDTO == null)
-            {
-                return NotFound();
-            }
-
-            await carService.DeleteCarById(id);
+            await carService.Delete(id);
 
             return Ok();
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseCarDTO>> Get([FromQuery] string? carMake,
-    [FromQuery] long? garageId,
-    [FromQuery] int? startYear,
-    [FromQuery] int? endYear)
+        [FromQuery] long? garageId,
+        [FromQuery] int? startYear,
+        [FromQuery] int? endYear)
         {
-            IEnumerable<ResponseCarDTO> result = await carService.SearchCarsAsync(carMake, garageId, startYear, endYear);
+            IEnumerable<ResponseCarDTO> result = await carService.Search(carMake, garageId, startYear, endYear);
 
             return Ok(result);
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseCarDTO>> Create(CreateCarDTO dto)
         {
-            ResponseCarDTO? created = await carService.CreateCar(dto);
-
-            if (created == null)
-            {
-                return NotFound();
-            }
+            ResponseCarDTO created = await carService.Create(dto);
 
             return Ok(created);
         }

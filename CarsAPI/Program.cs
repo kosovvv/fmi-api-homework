@@ -1,6 +1,6 @@
-
-using CarsAPI.Models;
-using CarsAPI.Services;
+using Cars.Data;
+using Cars.Data.Services.Implementations;
+using Cars.Data.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarsAPI
