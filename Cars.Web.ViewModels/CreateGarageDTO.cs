@@ -1,13 +1,19 @@
-﻿namespace Cars.Web.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Cars.Web.ViewModels
 {
     public class CreateGarageDTO
     {
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
 
-        public required string Location { get; set; }
+        [Required]
+        public string Location { get; set; }
 
-        public required string City { get; set; }
+        [Required]
+        public string City { get; set; }
 
+        [Required]
         public int Capacity { get; set; }
     }
 }

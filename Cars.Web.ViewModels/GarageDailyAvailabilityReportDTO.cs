@@ -8,7 +8,7 @@ namespace Cars.Web.ViewModels
         {
 
         }
-        public GarageDailyAvailabilityReportDTO(string? date, int requests, int avaliableCapacity)
+        public GarageDailyAvailabilityReportDTO(string date, int requests, int avaliableCapacity)
         {
             Date = date;
             Requests = requests;
@@ -16,7 +16,7 @@ namespace Cars.Web.ViewModels
         }
 
         [DataType(DataType.Date)]
-        public string? Date { get; set; }
+        public string Date { get; set; }
 
         public int Requests { get; set; }
 

@@ -2,27 +2,27 @@
 
 namespace Cars.Web.ViewModels
 {
-    public class ResponseMaintenanceDTO(long? id,
-        long? carId,
-        string? carName,
-        string? serviceType,
-        string? scheduledDate,
+    public class ResponseMaintenanceDTO(long id,
+        long carId,
+        string carName,
+        string serviceType,
+        string scheduledDate,
         long garageId,
-        string? garageName)
+        string garageName)
     {
-        public long? Id { get; set; } = id;
+        public long Id { get; set; } = id;
 
-        public long? CarId { get; set; } = carId;
+        public long CarId { get; set; } = carId;
 
-        public string? CarName { get; set; } = carName;
+        public string CarName { get; set; } = carName;
 
-        public string? ServiceType { get; set; } = serviceType;
+        public string ServiceType { get; set; } = serviceType;
 
         [DataType(DataType.Date)]
-        public string? ScheduledDate { get; set; } = scheduledDate;
+        public string ScheduledDate { get; set; } = scheduledDate;
 
         public long GarageId { get; set; } = garageId;
 
-        public string? GarageName { get; set; } = garageName;
+        public string GarageName { get; set; } = garageName;
     }
 }

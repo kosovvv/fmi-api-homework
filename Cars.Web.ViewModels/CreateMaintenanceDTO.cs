@@ -4,13 +4,17 @@ namespace Cars.Web.ViewModels
 {
     public class CreateMaintenanceDTO
     {
-        public required long GarageId { get; set; }
+        [Required]
+        public long GarageId { get; set; }
 
-        public required long CarId { get; set; }
+        [Required]
+        public long CarId { get; set; }
 
-        public required string ServiceType { get; set; }
+        [Required]
+        public string ServiceType { get; set; }
 
+        [Required]
         [DataType(DataType.Date)]
-        public required string ScheduledDate { get; set; }
+        public string ScheduledDate { get; set; }
     }
 }
