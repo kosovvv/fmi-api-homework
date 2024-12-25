@@ -39,7 +39,8 @@ namespace Cars.Data.Services.Implementations
 
         public async Task Delete(long id)
         {
-            Garage? garageToDelete = await dbContext.Garages
+            Garage? garageToDelete = await dbContext
+                .Garages
                 .FirstOrDefaultAsync(x => x.Id == id) 
                 ?? throw new NotFoundException($"{nameof(Garage)} with {id} is not found");
 
@@ -51,9 +52,8 @@ namespace Cars.Data.Services.Implementations
         {
             IEnumerable<Garage> result = await dbContext
                .Garages
-               .Include(x => x.Cars)
-               .Where(x => string.IsNullOrWhiteSpace(city) || x.City == city)
-               .ToListAsync() 
+               .Where(x => string.IsNullOrWhiteSpace(city) || x.City.Contains(city))
+               .ToListAsync()
                ?? throw new NotFoundException($"{nameof(Garage)}'s not found");
 
             return result.Select(x => new ResponseGarageDTO(x.Id, x.Name, x.Location, x.City, x.Capacity));
@@ -81,7 +81,8 @@ namespace Cars.Data.Services.Implementations
 
         public async Task<IEnumerable<GarageDailyAvailabilityReportDTO>> GetReport(long garageId, DateTime? startDate, DateTime? endDate)
         {
-            IEnumerable<Maintenance> maintenanceRequests = await dbContext.Maintenances
+            IEnumerable<Maintenance> maintenanceRequests = await dbContext
+                .Maintenances
                 .Where(request => request.GarageId == garageId &&
                        request.ScheduledDate >= startDate &&
                        request.ScheduledDate <= endDate)

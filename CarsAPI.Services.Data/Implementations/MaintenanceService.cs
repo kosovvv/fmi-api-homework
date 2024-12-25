@@ -78,13 +78,16 @@ namespace Cars.Data.Services.Implementations
 
         public async Task<IEnumerable<ResponseMaintenanceDTO>> Search(string? startDate, string? endDate, long? carId, long? garageId)
         {
-            IEnumerable<Maintenance> result = await dbContext.Maintenances
+           IEnumerable<Maintenance> result = await dbContext
+                .Maintenances
                 .Include(x => x.Garage)
                 .Include(x => x.Car)
-                .Where(x => string.IsNullOrEmpty(startDate) || x.ScheduledDate >= DateTime.Parse(startDate))
-                .Where(x => string.IsNullOrEmpty(endDate) || x.ScheduledDate <= DateTime.Parse(endDate))
-                .Where(x => !carId.HasValue || x.CarId == carId)
-                .Where(x => !garageId.HasValue || x.GarageId == garageId)
+                .Where(x => 
+                    (string.IsNullOrEmpty(startDate) || x.ScheduledDate >= DateTime.Parse(startDate)) &&
+                    (string.IsNullOrEmpty(endDate) || x.ScheduledDate <= DateTime.Parse(endDate)) &&
+                    (!carId.HasValue || x.CarId == carId) &&
+                    (!garageId.HasValue || x.GarageId == garageId)
+                )
                 .ToListAsync();
 
             if (result == null)
