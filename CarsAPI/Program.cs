@@ -1,4 +1,5 @@
 using Cars.Data;
+using Cars.Data.Services.Exceptions;
 using Cars.Data.Services.Implementations;
 using Cars.Data.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace CarsAPI
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             string connectionString = "Server=Emil\\SQLEXPRESS;Database=CarsAPI;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
@@ -47,7 +48,7 @@ namespace CarsAPI
                 });
             });
 
-            var app = builder.Build();
+            WebApplication app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -57,9 +58,21 @@ namespace CarsAPI
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
 
+            app.Use(async (context, next) =>
+            {
+                try
+                {
+                    await next(context);
+                }
+                catch (NotFoundException ex)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new { ex.Message });
+                }
+            });
 
             app.MapControllers();
             app.UseCors("CorsPolicy");
